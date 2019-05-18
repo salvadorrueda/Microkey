@@ -11,7 +11,7 @@
  *  [ * ][ 0 ][ # ][ D ]
  *  
  *  
- *  Special thanks to Alexander Brevig for the Keypad library and Adafruit for SSD1306 driver.
+ *  Special thanks to Mark Stanley and Alexander Brevig for the Keypad library and Adafruit for SSD1306 driver.
  */
 
 /*********************************************************************
@@ -39,7 +39,6 @@ All text above, and the splash screen must be included in any redistribution
 
 #define OLED_RESET 4
 Adafruit_SSD1306 display(OLED_RESET);
-
 
 #include <Keypad.h>
 #include "Keyboard.h"
