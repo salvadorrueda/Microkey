@@ -76,14 +76,14 @@ void setup(){
   
 }
 
-bool locked = false;   // locked by default. Do nothing until unlock.
+bool locked = true;   // locked by default. Do nothing until unlock.
                          // set to 'false' to avoid lock MicroKey.
 #define maxcmdl 4      // maximun cmd length      
 char cod[maxcmdl+1] = "1234"; // to save the code to unlock. 4 nums and the \n character.
                           
 char key = ' ';        // to save the value of the key pressed.
 char cmd = ' ';        // to save the code of the command to execute.
-  
+int icmd;  
 
 void loop(){
   
@@ -100,6 +100,7 @@ void loop(){
     welcome(); // Display initial message.
     locked = check_lock();
   }
+
 
   // unlocked
   welcome_unlocked();       
@@ -118,13 +119,14 @@ void loop(){
 }
 
 void welcome(){
+  int i;
+  
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0,0);
   display.println("Microkey cmd locked");
   display.println("Enter code to unlock");
-  display.println(cmd);
   display.display();
 }
 
@@ -178,26 +180,35 @@ void print_cmd(char cmd){
 }
 
 bool check_lock(){ // Wait for a 4 key code to mach with variable "cod". 
+//#define maxcmdl 4      // maximun cmd length      
+//char cod[maxcmdl+1] = "1234"; // to save the code to unlock. 4 nums and the \n character.
+
   bool locked = true;
-  /*
-  key = keypad.getKey();
-    if (key && icmd<maxcmdl){
-      cmd[icmd++] = key; // add 'key' to cmd
-    }
-    
-    // Check for the code to unlock MicroKey.
-    if (!strcmp(cmd,cod)){
-      locked = false;
-      strcpy(cmd,"    "); // Reset the code, ready for cmd.
-      icmd = 0;           // Reset the index of cmd array.
-      welcome_unlocked();     
-    }else{
-      if(icmd == maxcmdl){
-        strcpy(cmd,"    "); // Reset the code
-        icmd = 0;           // Reset the index of code array.
+
+  int icmd = 0;
+  bool fail = false;  // true when a single character of the password fails.
+  
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println("Microkey cmd locked");
+  display.println("Enter code to unlock");
+  
+  while (icmd<maxcmdl){
+    key = keypad.getKey();
+
+    if(key){
+      display.print(key);
+      display.display();
+      
+      if(key == cod[icmd] && !fail) locked = false;
+      else{
+        fail = true;
+        locked = true;
       }
+      icmd++;   
     }
-    */
-    
+  }
   return locked;
 }
