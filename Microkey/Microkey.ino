@@ -74,17 +74,17 @@ void setup(){
   display.display();
   delay(2000);
   
-  welcome(); // Display initial message. 
-
 }
 
-  bool locked = true;   // locked by default. Do nothing until unlock. 
-  char key = ' ';        // to save the value of the key pressed.
+  bool locked = false;   // locked by default. Do nothing until unlock.
+                         // set to 'false' to avoid lock MicroKey.
   #define maxcmdl 4      // maximun cmd length      
-  char cmd[maxcmdl+1] = "    "; // to save the code or command. 4 nums and the \n character.
   char cod[maxcmdl+1] = "1234"; // to save the code to unlock. 4 nums and the \n character.
+                          
+  char key = ' ';        // to save the value of the key pressed.
+  char cmd[maxcmdl+1] = "    "; // to save the code or command. 4 nums and the \n character.
   unsigned int icmd = 0;// index of cmd array. Possible values [0-4].
-  unsigned int uicmd; // integer value of cmd char array.
+  unsigned int uicmd;   // integer value of cmd char array.
   char scmd[50];        // string cmd to be send when 'A' is pressed.
   char dcmd[22];        // string to display related to the cmd.
   
@@ -100,27 +100,14 @@ void loop(){
    */
 
   while(locked){ // locked by default. Do nothing until unlock. 
-    welcome();
-    key = keypad.getKey();
-    if (key && icmd<maxcmdl){
-      cmd[icmd++] = key; // add 'key' to cmd
-    }
-    
-    // Check for the code to unlock MicroKey.
-    if (!strcmp(cmd,cod)){
-      locked = false;
-      strcpy(cmd,"    "); // Reset the code, ready for cmd.
-      icmd = 0;           // Reset the index of cmd array.
-      welcome_unlocked();     
-    }else{
-      if(icmd == maxcmdl){
-        strcpy(cmd,"    "); // Reset the code
-        icmd = 0;           // Reset the index of code array.
-      }
-    }
+    welcome(); // Display initial message.
+    locked = check_lock();
   }
+
+  // unlocked
+  welcome_unlocked();       
   
-  key = keypad.getKey();
+  key = keypad.getKey(); 
     
   if (key){
     // Activate. Execute the command (scmd).
@@ -129,13 +116,7 @@ void loop(){
       Keyboard.write(KEY_RETURN);
       welcome_unlocked();       
     }else{
-      // Add key to the code
-      if(icmd == maxcmdl){
-        strcpy(cmd,"    "); // Reset the code
-        icmd = 0;           // Reset the index of code array.
-      }   
-      
-      //cmd[icmd++]=key;
+      // Prepare the command to execute
       // <!> One digit code
       cmd[0]=key; 
       
@@ -204,6 +185,7 @@ void welcome_unlocked(){
   display.display();
 }
 
+
 void update_scmd(){
  
  switch(cmd[0]){
@@ -226,3 +208,25 @@ void update_scmd(){
   } 
 }
 
+bool check_lock(){ // Wait for a 4 key code to mach with variable "cod". 
+  bool locked = true;
+  
+  key = keypad.getKey();
+    if (key && icmd<maxcmdl){
+      cmd[icmd++] = key; // add 'key' to cmd
+    }
+    
+    // Check for the code to unlock MicroKey.
+    if (!strcmp(cmd,cod)){
+      locked = false;
+      strcpy(cmd,"    "); // Reset the code, ready for cmd.
+      icmd = 0;           // Reset the index of cmd array.
+      welcome_unlocked();     
+    }else{
+      if(icmd == maxcmdl){
+        strcpy(cmd,"    "); // Reset the code
+        icmd = 0;           // Reset the index of code array.
+      }
+    }
+  return locked;
+}
