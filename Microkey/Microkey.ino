@@ -61,23 +61,13 @@ byte colPins[COLS] = { 6, 11, 10, 9}; //connect to the column pinouts of the key
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 
-void setup(){
-  //Serial.begin(9600);
-  
-  // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
+void setup(){ 
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
-  // init done
-  
-  // Show image buffer on the display hardware.
-  // Since the buffer is intialized with an Adafruit splashscreen
-  // internally, this will display the splashscreen.
-  display.display();
   delay(2000);
-  
 }
 
-bool locked = true;   // locked by default. Do nothing until unlock.
-                         // set to 'false' to avoid lock MicroKey.
+bool locked = true;    // locked by default. Do nothing until unlock.
+                       // set to 'false' to avoid lock MicroKey.
 #define maxcmdl 4      // maximun cmd length      
 char cod[maxcmdl+1] = "1234"; // to save the code to unlock. 4 nums and the \n character.
                           
@@ -88,7 +78,7 @@ int icmd;
 void loop(){
   
   /* 
-   * The first time MicroKey is connected is locked.
+   * The first time MicroKey is connected it is locked.
    * You've to enter a code to unlock it. After that,
    * if you enter a code you will see the
    * text to send in the display and it will be sended
@@ -97,10 +87,9 @@ void loop(){
    */
 
   while(locked){ // locked by default. Do nothing until unlock. 
-    welcome(); // Display initial message.
+    welcome();   // Display initial message.
     locked = check_lock();
   }
-
 
   // unlocked
   welcome_unlocked();       
@@ -119,8 +108,6 @@ void loop(){
 }
 
 void welcome(){
-  int i;
-  
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
@@ -138,15 +125,12 @@ void welcome_unlocked(){
   display.println("Microkey cmd ");
   display.println("'A' to confirm");
   display.println(cmd);
-  //display.println(dcmd);
   print_cmd(cmd);
   display.display();
 }
 
 void execute(char cmd){
-          //Keyboard.println(scmd);
-          //Keyboard.write(KEY_RETURN);
- switch(cmd){
+  switch(cmd){
   case '1':
        Keyboard.println("Password 1");       
        break;
@@ -184,18 +168,12 @@ bool check_lock(){ // Wait for a 4 key code to mach with variable "cod".
 //char cod[maxcmdl+1] = "1234"; // to save the code to unlock. 4 nums and the \n character.
 
   bool locked = true;
-
   int icmd = 0;
   bool fail = false;  // true when a single character of the password fails.
-  
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(0,0);
-  display.println("Microkey cmd locked");
-  display.println("Enter code to unlock");
-  
-  while (icmd<maxcmdl){
+
+  welcome();
+ 
+  while (icmd<maxcmdl){ // ask as many characters as password length
     key = keypad.getKey();
 
     if(key){
@@ -203,6 +181,7 @@ bool check_lock(){ // Wait for a 4 key code to mach with variable "cod".
       display.display();
       
       if(key == cod[icmd] && !fail) locked = false;
+      // if the key is right and didn't fail before looked is false. 
       else{
         fail = true;
         locked = true;
