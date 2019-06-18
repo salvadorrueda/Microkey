@@ -76,18 +76,15 @@ void setup(){
   
 }
 
-  bool locked = false;   // locked by default. Do nothing until unlock.
+bool locked = false;   // locked by default. Do nothing until unlock.
                          // set to 'false' to avoid lock MicroKey.
-  #define maxcmdl 4      // maximun cmd length      
-  char cod[maxcmdl+1] = "1234"; // to save the code to unlock. 4 nums and the \n character.
+#define maxcmdl 4      // maximun cmd length      
+char cod[maxcmdl+1] = "1234"; // to save the code to unlock. 4 nums and the \n character.
                           
-  char key = ' ';        // to save the value of the key pressed.
-  char cmd[maxcmdl+1] = "    "; // to save the code or command. 4 nums and the \n character.
-  unsigned int icmd = 0;// index of cmd array. Possible values [0-4].
-  unsigned int uicmd;   // integer value of cmd char array.
-  char scmd[50];        // string cmd to be send when 'A' is pressed.
-  char dcmd[22];        // string to display related to the cmd.
+char key = ' ';        // to save the value of the key pressed.
+char cmd = ' ';        // to save the code of the command to execute.
   
+
 void loop(){
   
   /* 
@@ -110,55 +107,13 @@ void loop(){
   key = keypad.getKey(); 
     
   if (key){
-    // Activate. Execute the command (scmd).
+    // Activate. Execute the command "cmd".
     if (key=='A') {
-      Keyboard.println(scmd);
-      Keyboard.write(KEY_RETURN);
-      welcome_unlocked();       
+      execute(cmd);
     }else{
       // Prepare the command to execute
-      // <!> One digit code
-      cmd[0]=key; 
-      
-      // Update scmd
-      update_scmd();
-      
-      // Update display  
-      welcome_unlocked();    
+      cmd=key; 
     }
-
-    // Press 'C' to clear current code. 
-    if (key=='C') {
-      strcpy(cmd,"    "); // Reset the code
-      icmd = 0;           // Reset the index of code array.
-      strcpy(scmd,"");    // clean display scmd. Text to write.
-      strcpy(dcmd,"");    // clean display dcmd. Text to display.
-                
-      welcome_unlocked(); 
-    }
-
-    if (key=='D') {
-      //for (i=0; i<1; j++){
-        display.setCursor(0,0);
-        display.println();
-        cmd[icmd]=key;
-        icmd++;
-        display.println(cmd);
-        display.println("Not D. Zoombie");
-        //strcpy(scmd,"");
-        display.display(); 
-        
-      for (;;){
-      Keyboard.println("fg");
-      Keyboard.write(KEY_RETURN);
-      delay(60000); // 1m before pause it
-      Keyboard.press(KEY_LEFT_CTRL);
-      Keyboard.press('Z');
-      Keyboard.releaseAll();
-      Keyboard.write(KEY_RETURN);
-      delay(120000); // 2m before resume it
-      } 
-    }     
   }
 }
 
@@ -181,36 +136,50 @@ void welcome_unlocked(){
   display.println("Microkey cmd ");
   display.println("'A' to confirm");
   display.println(cmd);
-  display.println(dcmd);
+  //display.println(dcmd);
+  print_cmd(cmd);
   display.display();
 }
 
-
-void update_scmd(){
- 
- switch(cmd[0]){
+void execute(char cmd){
+          //Keyboard.println(scmd);
+          //Keyboard.write(KEY_RETURN);
+ switch(cmd){
   case '1':
-       strcpy(scmd,"123456");
-       strcpy(dcmd,"Password 1");       
+       Keyboard.println("Password 1");       
        break;
   case '2':
-       strcpy(scmd,"1234");       
-       strcpy(dcmd,"Password 2");       
+       Keyboard.println("Password 2");       
        break;
   case '3':
-       strcpy(scmd,"Salvador");
-       strcpy(dcmd,"Salvador");                          
+       Keyboard.println("Salvador");                          
        break;
   case '4':
-       strcpy(scmd,"salvador.rueda@gmail.com");
-       strcpy(dcmd,"Salvador.rueda@gmail.com");                          
+       Keyboard.println("Salvador.rueda@gmail.com");                          
+       break;
+  }  
+}
+
+void print_cmd(char cmd){
+ switch(cmd){
+  case '1':
+       display.println("Password 1");       
+       break;
+  case '2':
+       display.println("Password 2");       
+       break;
+  case '3':
+       display.println("Salvador");                          
+       break;
+  case '4':
+       display.println("Salvador.rueda@gmail.com");                          
        break;
   } 
 }
 
 bool check_lock(){ // Wait for a 4 key code to mach with variable "cod". 
   bool locked = true;
-  
+  /*
   key = keypad.getKey();
     if (key && icmd<maxcmdl){
       cmd[icmd++] = key; // add 'key' to cmd
@@ -228,5 +197,7 @@ bool check_lock(){ // Wait for a 4 key code to mach with variable "cod".
         icmd = 0;           // Reset the index of code array.
       }
     }
+    */
+    
   return locked;
 }
